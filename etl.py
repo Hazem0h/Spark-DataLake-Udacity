@@ -196,7 +196,7 @@ def process_log_data(spark: SparkSession,
 def main():
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = config["output_S3_bucket"]
+    output_data = config["OUTPUT_DATA_S3"]
     
     process_song_data(spark, input_data, output_data)
     process_log_data(spark, input_data, output_data)
