@@ -77,7 +77,8 @@ def process_song_data(spark: SparkSession,
     # write songs table to parquet files partitioned by year and artist
     songs_table.write.parquet(
         path = output_data + 'songs.parquet',
-        partitionBy = ['year', 'artist_id']
+        partitionBy = ['year', 'artist_id'],
+        mode = 'overwrite'
     )
 
     # extract columns to create artists table
@@ -91,7 +92,8 @@ def process_song_data(spark: SparkSession,
 
     # write artists table to parquet files
     artists_table.write.parquet(
-        path = output_data + 'artists.parquet'
+        path = output_data + 'artists.parquet',
+        mode = 'overwrite'
     )
 
 
@@ -134,14 +136,18 @@ def process_log_data(spark: SparkSession,
         df_logs
         .filter(F.lower(df_logs["page"]) == "nextsong")
         .select('ts', 'user_id',  'level', 'song', 'artist', 'session_id', 'location', 'user_agent')
-        .join(df_songs, on = df_logs["song"] == df_songs["title"], how = "inner")
+        .join(df_songs, 
+              on = [df_logs["song"] == df_songs["title"],
+                    df_logs["artist"] == df_songs["artist_name"]],
+              how = "inner")
         .withColumnRenamed("ts", "start_time")
         .withColumn('songplay_id', F.monotonically_increasing_id())
     )
 
     # write the songplayes table to parquet
     songplays_table.write.parquet(
-        path = output_data + 'songplays.parquet'
+        path = output_data + 'songplays.parquet',
+        mode = 'overwrite'
     )
 
     # extract columns for users table 
@@ -168,7 +174,9 @@ def process_log_data(spark: SparkSession,
     
     # write users table to parquet files
     users_table.write.parquet(
-        output_data + 'users.parquet'
+        output_data + 'users.parquet',
+        partitionBy = ['gender', 'level'],
+        mode = 'overwrite'
     )
 
     # create time table
@@ -189,7 +197,8 @@ def process_log_data(spark: SparkSession,
     # The partitioning isn't specified, but it makes sense to partition by year and month
     time_table.write.parquet(
         output_data + 'time.parquet',
-        partitionBy = ['year', 'month'] 
+        partitionBy = ['year', 'month'],
+        mode = 'overwrite'
     )
 
 
