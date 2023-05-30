@@ -49,6 +49,23 @@ The ETL notebook includes the thought process of why I did these transformations
 ### The `etl.py` script
 This is the entrypoint script for the ETL process.
 
+To run this on a Spark cluster, you need to do the following:
+
+
+## How to run on a Spark cluster
+* Create an AWS EMR cluster
+* Create an S3 bucket for the output data
+* Fill your `dl.cfg` file with the AWS credentials and the S3 bucket names
+* Make sure your cluster has 
+    * Read access to the input S3 buckets
+    * Write access to the output S3 buckets
+* SSH into the master node of the cluster and copy the `dl.cfg` and the `etl.py` files to the master node
+* run the following command: 
+```
+spark-submit --master yarn ./etl.py
+```
+
+
 ## A note about the Users table
 The users table is updated every time a user plays a song. This is because the user's level can change. So, we need to update the user's level every time they play a song. This is why, I'm aggregating the users table by `user_id`, and selecting the entry with the latest `timestamp` (which is the `start_time` in the `songplays` table). This way, we can get the latest level for each user.
 
